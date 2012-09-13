@@ -1,0 +1,50 @@
+#!/usr/bin/perl
+
+use strict;
+
+use Test::More tests => 6;
+
+use Tickit::Test;
+
+use Tickit::Widget::MenuBar;
+use Tickit::Widget::Menu;
+use Tickit::Widget::Menu::Item;
+
+my ( $term, $win ) = mk_term_and_window;
+
+{
+   my $menubar = Tickit::Widget::MenuBar->new(
+      items => [
+         Tickit::Widget::Menu->new( name => "File", items => [] ),
+         Tickit::Widget::Menu->new( name => "Edit", items => [] ),
+      ]
+   );
+
+   ok( defined $menubar, '$menubar defined' );
+   isa_ok( $menubar, "Tickit::Widget::MenuBar", '$menubar isa Tickit::Widget::MenuBar' );
+
+   is( $menubar->lines,  1, '$menubar->lines' );
+   is( $menubar->cols,  10, '$menubar->cols' );
+
+   $menubar->set_window( $win );
+   flush_tickit;
+
+   is_termlog( [ GOTO(0,0),
+                 SETPEN(rv=>1),
+                 PRINT("File"),
+                 SETPEN(rv=>1),
+                 ERASECH(2,1),
+                 GOTO(0,6),
+                 SETPEN(rv=>1),
+                 PRINT("Edit"),
+                 SETPEN(rv=>1),
+                 ERASECH(2,1),
+                 SETPEN(rv=>1),
+                 ERASECH(68,0),
+              
+                 map { GOTO($_,0), SETPEN(rv=>1), ERASECH(80) } 1 .. 24 ],
+               'Termlog initially' );
+
+   is_display( [ [TEXT("File  Edit",rv=>1)] ],
+               'Display initially' );
+}
