@@ -1,8 +1,10 @@
 #!/usr/bin/perl
 
 use strict;
+use warnings;
+use utf8;
 
-use Test::More tests => 9;
+use Test::More;
 
 use Tickit::Test;
 
@@ -36,17 +38,17 @@ $win->set_on_expose( sub {
 
    flush_tickit;
 
-   is_termlog( [ GOTO(5,5), SETPEN(rv=>1), PRINT("+--------+"),
-                 GOTO(6,5), SETPEN(rv=>1), PRINT("| "), SETPEN(rv=>1), PRINT("Item 1"), SETPEN(rv=>1), PRINT(" |"),
-                 GOTO(7,5), SETPEN(rv=>1), PRINT("| "), SETPEN(rv=>1), PRINT("Item 2"), SETPEN(rv=>1), PRINT(" |"),
-                 GOTO(8,5), SETPEN(rv=>1), PRINT("+--------+"), ],
+   is_termlog( [ GOTO(5,5), SETPEN(rv=>1), PRINT("┌────────┐"),
+                 GOTO(6,5), SETPEN(rv=>1), PRINT("│"), SETPEN(rv=>1), ERASECH(1,1), SETPEN(rv=>1), PRINT("Item 1"), SETPEN(rv=>1), ERASECH(1,1), SETPEN(rv=>1), PRINT("│"),
+                 GOTO(7,5), SETPEN(rv=>1), PRINT("│"), SETPEN(rv=>1), ERASECH(1,1), SETPEN(rv=>1), PRINT("Item 2"), SETPEN(rv=>1), ERASECH(1,1), SETPEN(rv=>1), PRINT("│"),
+                 GOTO(8,5), SETPEN(rv=>1), PRINT("└────────┘"), ],
                'Termlog after ->popup' );
 
    is_display( [ BLANKLINES(5),
-                 [BLANK(5), TEXT("+--------+",rv=>1)],
-                 [BLANK(5), TEXT("| Item 1 |",rv=>1)],
-                 [BLANK(5), TEXT("| Item 2 |",rv=>1)],
-                 [BLANK(5), TEXT("+--------+",rv=>1)] ],
+                 [BLANK(5), TEXT("┌────────┐",rv=>1)],
+                 [BLANK(5), TEXT("│ Item 1 │",rv=>1)],
+                 [BLANK(5), TEXT("│ Item 2 │",rv=>1)],
+                 [BLANK(5), TEXT("└────────┘",rv=>1)] ],
                'Display after ->popup' );
 
    $menu->dismiss;
@@ -72,18 +74,20 @@ $win->set_on_expose( sub {
 
    flush_tickit;
 
-   is_termlog( [ GOTO(5,5), SETPEN(rv=>1), PRINT("+--------+"),
-                 GOTO(6,5), SETPEN(rv=>1), PRINT("| "), SETPEN(rv=>1), PRINT("Item 1"), SETPEN(rv=>1), PRINT(" |"),
-                 GOTO(7,5), SETPEN(rv=>1), PRINT("+--------+"),
-                 GOTO(8,5), SETPEN(rv=>1), PRINT("| "), SETPEN(rv=>1), PRINT("Item 2"), SETPEN(rv=>1), PRINT(" |"),
-                 GOTO(9,5), SETPEN(rv=>1), PRINT("+--------+"), ],
+   is_termlog( [ GOTO(5,5), SETPEN(rv=>1), PRINT("┌────────┐"),
+                 GOTO(6,5), SETPEN(rv=>1), PRINT("│"), SETPEN(rv=>1), ERASECH(1,1), SETPEN(rv=>1), PRINT("Item 1"), SETPEN(rv=>1), ERASECH(1,1), SETPEN(rv=>1), PRINT("│"),
+                 GOTO(7,5), SETPEN(rv=>1), PRINT("├────────┤"),
+                 GOTO(8,5), SETPEN(rv=>1), PRINT("│"), SETPEN(rv=>1), ERASECH(1,1), SETPEN(rv=>1), PRINT("Item 2"), SETPEN(rv=>1), ERASECH(1,1), SETPEN(rv=>1), PRINT("│"),
+                 GOTO(9,5), SETPEN(rv=>1), PRINT("└────────┘"), ],
                'Termlog with menu with separator' );
 
    is_display( [ BLANKLINES(5),
-                 [BLANK(5), TEXT("+--------+",rv=>1)],
-                 [BLANK(5), TEXT("| Item 1 |",rv=>1)],
-                 [BLANK(5), TEXT("+--------+",rv=>1)],
-                 [BLANK(5), TEXT("| Item 2 |",rv=>1)],
-                 [BLANK(5), TEXT("+--------+",rv=>1)] ],
+                 [BLANK(5), TEXT("┌────────┐",rv=>1)],
+                 [BLANK(5), TEXT("│ Item 1 │",rv=>1)],
+                 [BLANK(5), TEXT("├────────┤",rv=>1)],
+                 [BLANK(5), TEXT("│ Item 2 │",rv=>1)],
+                 [BLANK(5), TEXT("└────────┘",rv=>1)] ],
                'Display with menu with separator' );
 }
+
+done_testing;

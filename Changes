@@ -1,4 +1,8 @@
 Revision history for Tickit-Widget-Menu
 
+0.02    CHANGES:
+         * Rewrite rendering logic to use Tickit::RenderContext
+         * Use real linedrawing
+
 0.01    First version, released on an unsuspecting world.
 

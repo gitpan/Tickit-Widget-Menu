@@ -1,7 +1,7 @@
 #  You may distribute under the terms of either the GNU General Public License
 #  or the Artistic License (the same terms as Perl itself)
 #
-#  (C) Paul Evans, 2012 -- leonerd@leonerd.org.uk
+#  (C) Paul Evans, 2012-2013 -- leonerd@leonerd.org.uk
 
 package Tickit::Widget::Menu;
 
@@ -11,14 +11,15 @@ use feature qw( switch );
 
 use Tickit::Window 0.18; # needs ->make_popup
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 # Much of this code actually lives in a class called T:W:Menu::base, which is
 # the base class used by T:W:Menu and T:W:MenuBar
 use base qw( Tickit::Widget::Menu::base );
 
+use Tickit::RenderContext qw( LINE_SINGLE );
 use Tickit::Utils qw( textwidth );
-use List::Util qw( max );
+use List::Util qw( max min );
 
 # Re-import the constant for compiletime use
 use constant separator => __PACKAGE__->separator;
@@ -169,22 +170,9 @@ sub render_item
    my ( $idx ) = @_;
 
    my $win = $self->window or return;
-   $win->is_visible or return;
-
-   my $item = $self->{items}[$idx];
-   $win->goto( $idx + 1, 0 );
-
-   my $is_highlight = defined $self->{active_idx} && $idx == $self->{active_idx};
-
-   if( $item == separator ) {
-      $win->print( "+" . "-" x ( $win->cols - 2 ) . "+" );
-   }
-   else {
-      $win->print( "| " );
-      $win->print( my $name = $item->name, $is_highlight ? ( $self->active_pen ) : () );
-      $win->erasech( $win->cols - 4 - textwidth( $name ), 1, $is_highlight ? ( $self->active_pen ) : () );
-      $win->print( $item->isa( "Tickit::Widget::Menu" ) ? ">|" : " |" );
-   }
+   $self->render(
+      rect => Tickit::Rect->new( top => $idx+1, left => 1, lines => 1, cols => $win->cols - 2 )
+   );
 }
 
 sub render
@@ -196,22 +184,46 @@ sub render
    $win->is_visible or return;
    my $rect = $args{rect};
 
-   my $cols = $win->cols;
+   my $rc = Tickit::RenderContext->new(
+      lines => $win->lines,
+      cols  => $win->cols,
+   );
+   $rc->clip( $rect );
 
-   if( $rect->top == 0 ) {
-      $win->goto( 0, 0 );
-      $win->print( "+" . "-" x ( $cols - 2 ) . "+" );
+   my $lines = $win->lines;
+   my $cols  = $win->cols;
+
+   $rc->hline_at( 0, 0, $cols-1, LINE_SINGLE, $self->pen );
+   $rc->hline_at( $lines-1, 0, $cols-1, LINE_SINGLE, $self->pen );
+   $rc->vline_at( 0, $lines-1, 0, LINE_SINGLE, $self->pen );
+   $rc->vline_at( 0, $lines-1, $cols-1, LINE_SINGLE, $self->pen );
+
+   # This is clipped anyway, but useful to avoid overhead if we can
+   foreach my $line ( max($rect->top, 1) .. min($rect->bottom-1, $win->lines-2) ) {
+      my $idx = $line - 1;
+
+      my $item = $self->{items}[$idx];
+      if( $item == separator ) {
+         $rc->hline_at( $line, 0, $cols-1, LINE_SINGLE, $self->pen );
+      }
+      else {
+         $rc->erase_at( $line, 1, 1, $self->pen );
+         if( $item->isa( "Tickit::Widget::Menu" ) ) {
+            $rc->text_at( $line, $cols-2, ">", $self->pen );
+         }
+         else {
+            $rc->erase_at( $line, $cols-2, 1, $self->pen );
+         }
+
+         my $pen = defined $self->{active_idx} && $idx == $self->{active_idx}
+                     ? $self->active_pen : $self->pen;
+
+         $rc->erase_at( $line, 2, $cols-4, $pen );
+         $rc->text_at( $line, 2, $item->name, $pen );
+      }
    }
 
-   my @items = $self->items;
-   foreach my $line ( $rect->top + 1 .. $rect->bottom - 2 ) {
-      $self->render_item( $line - 1 );
-   }
-
-   if( $rect->bottom == $win->lines ) {
-      $win->goto( $win->lines - 1, 0 );
-      $win->print( "+" . "-" x ( $cols - 2 ) . "+" );
-   }
+   $rc->render_to_window( $win );
 }
 
 sub popup_item

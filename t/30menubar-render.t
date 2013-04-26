@@ -1,8 +1,9 @@
 #!/usr/bin/perl
 
 use strict;
+use warnings;
 
-use Test::More tests => 6;
+use Test::More;
 
 use Tickit::Test;
 
@@ -34,17 +35,18 @@ my ( $term, $win ) = mk_term_and_window;
                  PRINT("File"),
                  SETPEN(rv=>1),
                  ERASECH(2,1),
-                 GOTO(0,6),
                  SETPEN(rv=>1),
                  PRINT("Edit"),
                  SETPEN(rv=>1),
                  ERASECH(2,1),
                  SETPEN(rv=>1),
                  ERASECH(68,0),
-              
+
                  map { GOTO($_,0), SETPEN(rv=>1), ERASECH(80) } 1 .. 24 ],
                'Termlog initially' );
 
    is_display( [ [TEXT("File  Edit",rv=>1)] ],
                'Display initially' );
 }
+
+done_testing;

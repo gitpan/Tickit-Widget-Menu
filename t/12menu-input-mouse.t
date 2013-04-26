@@ -1,8 +1,10 @@
 #!/usr/bin/perl
 
 use strict;
+use warnings;
+use utf8;
 
-use Test::More tests => 5;
+use Test::More;
 
 use Tickit::Test;
 
@@ -32,10 +34,10 @@ $win->set_on_expose( sub {
 
    flush_tickit;
 
-   is_display( [ [TEXT("+--------+",rv=>1)],
-                 [TEXT("| Item 1 |",rv=>1)],
-                 [TEXT("| Item 2 |",rv=>1)],
-                 [TEXT("+--------+",rv=>1)] ],
+   is_display( [ [TEXT("┌────────┐",rv=>1)],
+                 [TEXT("│ Item 1 │",rv=>1)],
+                 [TEXT("│ Item 2 │",rv=>1)],
+                 [TEXT("└────────┘",rv=>1)] ],
                'Display after ->popup' );
 
    drain_termlog;
@@ -49,10 +51,10 @@ $win->set_on_expose( sub {
    pressmouse( drag => 1, 1, 5 );
    flush_tickit;
 
-   is_display( [ [TEXT("+--------+",rv=>1)],
-                 [TEXT("| ",rv=>1), TEXT("Item 1",rv=>0,bg=>2), TEXT(" |",rv=>1)],
-                 [TEXT("| Item 2 |",rv=>1)],
-                 [TEXT("+--------+",rv=>1)] ],
+   is_display( [ [TEXT("┌────────┐",rv=>1)],
+                 [TEXT("│ ",rv=>1), TEXT("Item 1",rv=>0,bg=>2), TEXT(" │",rv=>1)],
+                 [TEXT("│ Item 2 │",rv=>1)],
+                 [TEXT("└────────┘",rv=>1)] ],
                'Display after mouse drag to Item 1' );
 
    pressmouse( release => 1, 1, 5 );
@@ -63,3 +65,5 @@ $win->set_on_expose( sub {
    is_display( [ BLANKLINES(25) ],
                'Display blank after mouse release on Item 1' );
 }
+
+done_testing;

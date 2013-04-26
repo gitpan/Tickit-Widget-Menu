@@ -1,8 +1,10 @@
 #!/usr/bin/perl
 
 use strict;
+use warnings;
+use utf8;
 
-use Test::More tests => 6;
+use Test::More;
 
 use Tickit::Test;
 
@@ -41,28 +43,28 @@ my ( $term, $win ) = mk_term_and_window;
    flush_tickit;
 
    is_display( [ [TEXT("File",rv=>0,bg=>2), TEXT("  Edit",rv=>1)],
-                 [TEXT("+--------+",rv=>1)],
-                 [TEXT("| File 1 |",rv=>1)],
-                 [TEXT("| File 2 |",rv=>1)],
-                 [TEXT("+--------+",rv=>1)] ],
+                 [TEXT("┌────────┐",rv=>1)],
+                 [TEXT("│ File 1 │",rv=>1)],
+                 [TEXT("│ File 2 │",rv=>1)],
+                 [TEXT("└────────┘",rv=>1)] ],
                'Display after mouse press on File' );
 
    pressmouse( drag => 1, 0, 9 );
    flush_tickit;
 
    is_display( [ [TEXT("File  ",rv=>1), TEXT("Edit",rv=>0,bg=>2)],
-                 [BLANK(6), TEXT("+--------+",rv=>1)],
-                 [BLANK(6), TEXT("| Edit 1 |",rv=>1)],
-                 [BLANK(6), TEXT("+--------+",rv=>1)] ],
+                 [BLANK(6), TEXT("┌────────┐",rv=>1)],
+                 [BLANK(6), TEXT("│ Edit 1 │",rv=>1)],
+                 [BLANK(6), TEXT("└────────┘",rv=>1)] ],
                'Display after mouse drag to Edit' );
 
    pressmouse( drag => 1, 2, 9 );
    flush_tickit;
 
    is_display( [ [TEXT("File  ",rv=>1), TEXT("Edit",rv=>0,bg=>2)],
-                 [BLANK(6), TEXT("+--------+",rv=>1)],
-                 [BLANK(6), TEXT("| ",rv=>1), TEXT("Edit 1",rv=>0,bg=>2), TEXT(" |",rv=>1)],
-                 [BLANK(6), TEXT("+--------+",rv=>1)] ],
+                 [BLANK(6), TEXT("┌────────┐",rv=>1)],
+                 [BLANK(6), TEXT("│ ",rv=>1), TEXT("Edit 1",rv=>0,bg=>2), TEXT(" │",rv=>1)],
+                 [BLANK(6), TEXT("└────────┘",rv=>1)] ],
                'Display after mouse drag to Edit 1' );
 
    pressmouse( release => 1, 2, 9 );
@@ -73,3 +75,5 @@ my ( $term, $win ) = mk_term_and_window;
    is_display( [ [TEXT("File  Edit",rv=>1)] ],
                'Display after mouse release on Edit 1' );
 }
+
+done_testing;

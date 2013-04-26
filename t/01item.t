@@ -1,8 +1,9 @@
 #!/usr/bin/perl
 
 use strict;
+use warnings;
 
-use Test::More tests => 3;
+use Test::More;
 
 use Tickit::Test;
 
@@ -20,3 +21,5 @@ isa_ok( $item, "Tickit::Widget::Menu::Item", '$item isa Tickit::Widget::Menu::It
 
 $item->activate;
 is( $activated, 1, '$activated is 1 after ->activate' );
+
+done_testing;

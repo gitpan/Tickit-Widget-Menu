@@ -1,7 +1,7 @@
 #  You may distribute under the terms of either the GNU General Public License
 #  or the Artistic License (the same terms as Perl itself)
 #
-#  (C) Paul Evans, 2012 -- leonerd@leonerd.org.uk
+#  (C) Paul Evans, 2012-2013 -- leonerd@leonerd.org.uk
 
 package Tickit::Widget::MenuBar;
 
@@ -10,10 +10,11 @@ use warnings;
 
 use base qw( Tickit::Widget::Menu::base );
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
+use Tickit::RenderContext qw( LINE_SINGLE );
 use Tickit::Utils qw( textwidth );
-use List::Util qw( sum );
+use List::Util qw( sum max );
 
 =head1 NAME
 
@@ -108,39 +109,40 @@ sub render
    $win->is_visible or return;
    my $rect = $args{rect};
 
-   if( $rect->top == 0 ) {
-      my $col = 0;
+   my $rc = Tickit::RenderContext->new(
+      lines => $win->lines,
+      cols  => $win->cols,
+   );
+   $rc->clip( $rect );
 
-      my $pen = $self->pen;
+   my $pen = $self->pen;
+
+   if( $rect->top == 0 ) {
+      $rc->goto( 0, 0 );
 
       my @items = $self->items;
       foreach my $idx ( 0 .. $#items ) {
-         return if defined $args{last_idx} and $idx > $args{last_idx};
+         last if defined $args{last_idx} and $idx > $args{last_idx};
 
          my $item = $items[$idx];
          my $name = $item->name;
 
-         my $start_col = $col;
-
-         $col += textwidth( $name ) + 2;
-         next if defined $args{first_idx} and $idx < $args{first_idx};
-
-         $win->goto( 0, $start_col );
+         $rc->skip( textwidth( $name ) + 2 ), next if defined $args{first_idx} and $idx < $args{first_idx};
 
          my $is_highlight = defined $self->{active_idx} && $idx == $self->{active_idx};
 
-         $win->print( $name, $is_highlight ? ( $self->active_pen ) : ( $pen ) );
-
-         $win->erasech( 2, 1, $pen );
+         $rc->text( $name, $is_highlight ? ( $self->active_pen ) : ( $pen ) );
+         $rc->erase( 2, $pen );
       }
 
-      $win->erasech( $win->cols - $col, undef, $pen );
+      $rc->erase_to( $rc->cols, $pen ) if !defined $args{last_idx};
    }
 
-   foreach my $line ( $rect->top + 1 .. $rect->bottom ) {
-      $win->goto( $line, $rect->left );
-      $win->erasech( $rect->cols );
+   foreach my $line ( max( $rect->top, 1 ) .. $rect->bottom ) {
+      $rc->erase_at( $line, 0, $rc->cols, $pen );
    }
+
+   $rc->render_to_window( $win );
 }
 
 sub popup_item
