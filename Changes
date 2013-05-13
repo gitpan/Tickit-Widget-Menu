@@ -1,5 +1,9 @@
 Revision history for Tickit-Widget-Menu
 
+0.03    CHANGES:
+         * Use Tickit::Style for pen configuration
+         * Updated to Tickit::RenderContext 0.07
+
 0.02    CHANGES:
          * Rewrite rendering logic to use Tickit::RenderContext
          * Use real linedrawing

@@ -11,16 +11,13 @@ use feature qw( switch );
 
 use base qw( Tickit::Widget );
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use Carp;
 
 use constant CLEAR_BEFORE_RENDER => 0;
 
 use constant separator => [];
-
-use Tickit::WidgetRole::Penable
-   name => 'active', default => { rv => 0, bg => 'green' };
 
 sub new
 {
@@ -32,10 +29,6 @@ sub new
          croak "$class cannot ->$method - do you subclass and implement it?";
    }
    my $self = $class->SUPER::new( %args );
-
-   # Default?
-   $self->pen->chattrs( { rv => 1 } );
-   $self->_init_active_pen;
 
    $self->{items} = [];
    $self->{name} = $args{name};

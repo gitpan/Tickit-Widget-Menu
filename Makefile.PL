@@ -7,9 +7,9 @@ WriteMakefile
   'VERSION_FROM' => 'lib/Tickit/Widget/Menu.pm',
   'PREREQ_PM' => {
                    'Test::More' => '0.88',
-                   'Tickit::RenderContext' => '0.02',
+                   'Tickit::RenderContext' => '0.07',
                    'Tickit::Test' => 0,
-                   'Tickit::Widget' => '0.17',
+                   'Tickit::Widget' => '0.32',
                    'Tickit::Window' => '0.18'
                  },
   'INSTALLDIRS' => 'site',

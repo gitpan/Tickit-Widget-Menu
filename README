@@ -33,6 +33,13 @@ DESCRIPTION
     instance of a menu bar. Specifically, such objects should not be
     directly added to container widgets.
 
+STYLE
+    The default style pen is used as the widget pen. The following style pen
+    prefixes are also used:
+
+    highlight => PEN
+        The pen used to highlight the active menu selection
+
 CONSTRUCTOR
   $menu = Tickit::Widget::Menu->new( %args )
     Constructs a new `Tickit::Widget::Menu' object.

@@ -11,11 +11,12 @@ use feature qw( switch );
 
 use Tickit::Window 0.18; # needs ->make_popup
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 # Much of this code actually lives in a class called T:W:Menu::base, which is
 # the base class used by T:W:Menu and T:W:MenuBar
 use base qw( Tickit::Widget::Menu::base );
+use Tickit::Style;
 
 use Tickit::RenderContext qw( LINE_SINGLE );
 use Tickit::Utils qw( textwidth );
@@ -61,7 +62,27 @@ over some other widget, or as a child menu of another menu or an instance of
 a menu bar. Specifically, such objects should not be directly added to
 container widgets.
 
+=head1 STYLE
+
+The default style pen is used as the widget pen. The following style pen 
+prefixes are also used:
+
+=over 4
+
+=item highlight => PEN
+
+The pen used to highlight the active menu selection
+
+=back
+
 =cut
+
+style_definition base =>
+   rv => 1,
+   highlight_rv => 0,
+   highlight_bg => "green";
+
+use constant WIDGET_PEN_FROM_STYLE => 1;
 
 # These methods come from T:W:Menu::base but better to document them here so
 # the reader can find them
@@ -184,19 +205,19 @@ sub render
    $win->is_visible or return;
    my $rect = $args{rect};
 
-   my $rc = Tickit::RenderContext->new(
-      lines => $win->lines,
-      cols  => $win->cols,
-   );
+   my $rc = Tickit::RenderContext->new( lines => $win->lines, cols => $win->cols );
    $rc->clip( $rect );
+   $rc->setpen( $self->pen );
+
+   my $highlight_pen = $self->get_style_pen( "highlight" );
 
    my $lines = $win->lines;
    my $cols  = $win->cols;
 
-   $rc->hline_at( 0, 0, $cols-1, LINE_SINGLE, $self->pen );
-   $rc->hline_at( $lines-1, 0, $cols-1, LINE_SINGLE, $self->pen );
-   $rc->vline_at( 0, $lines-1, 0, LINE_SINGLE, $self->pen );
-   $rc->vline_at( 0, $lines-1, $cols-1, LINE_SINGLE, $self->pen );
+   $rc->hline_at( 0, 0, $cols-1, LINE_SINGLE );
+   $rc->hline_at( $lines-1, 0, $cols-1, LINE_SINGLE );
+   $rc->vline_at( 0, $lines-1, 0, LINE_SINGLE );
+   $rc->vline_at( 0, $lines-1, $cols-1, LINE_SINGLE );
 
    # This is clipped anyway, but useful to avoid overhead if we can
    foreach my $line ( max($rect->top, 1) .. min($rect->bottom-1, $win->lines-2) ) {
@@ -204,26 +225,26 @@ sub render
 
       my $item = $self->{items}[$idx];
       if( $item == separator ) {
-         $rc->hline_at( $line, 0, $cols-1, LINE_SINGLE, $self->pen );
+         $rc->hline_at( $line, 0, $cols-1, LINE_SINGLE );
       }
       else {
-         $rc->erase_at( $line, 1, 1, $self->pen );
+         $rc->erase_at( $line, 1, 1 );
          if( $item->isa( "Tickit::Widget::Menu" ) ) {
-            $rc->text_at( $line, $cols-2, ">", $self->pen );
+            $rc->text_at( $line, $cols-2, ">" );
          }
          else {
-            $rc->erase_at( $line, $cols-2, 1, $self->pen );
+            $rc->erase_at( $line, $cols-2, 1 );
          }
 
          my $pen = defined $self->{active_idx} && $idx == $self->{active_idx}
-                     ? $self->active_pen : $self->pen;
+                     ? $highlight_pen : undef;
 
          $rc->erase_at( $line, 2, $cols-4, $pen );
          $rc->text_at( $line, 2, $item->name, $pen );
       }
    }
 
-   $rc->render_to_window( $win );
+   $rc->flush_to_window( $win );
 }
 
 sub popup_item

@@ -9,8 +9,9 @@ use strict;
 use warnings;
 
 use base qw( Tickit::Widget::Menu::base );
+use Tickit::Style;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use Tickit::RenderContext qw( LINE_SINGLE );
 use Tickit::Utils qw( textwidth );
@@ -55,7 +56,27 @@ its name is never useful, and it should be added to a container widget, such
 as L<Tickit::Widget::VBox>, for longterm display. It does not have a C<popup>
 or C<dismiss> method.
 
+=head1 STYLE
+
+The default style pen is used as the widget pen. The following style pen 
+prefixes are also used:
+
+=over 4
+
+=item highlight => PEN
+
+The pen used to highlight the active menu selection
+
+=back
+
 =cut
+
+style_definition base =>
+   rv => 1,
+   highlight_rv => 0,
+   highlight_bg => "green";
+
+use constant WIDGET_PEN_FROM_STYLE => 1;
 
 sub lines
 {
@@ -109,13 +130,11 @@ sub render
    $win->is_visible or return;
    my $rect = $args{rect};
 
-   my $rc = Tickit::RenderContext->new(
-      lines => $win->lines,
-      cols  => $win->cols,
-   );
+   my $rc = Tickit::RenderContext->new( lines => $win->lines, cols => $win->cols );
    $rc->clip( $rect );
+   $rc->setpen( $self->pen );
 
-   my $pen = $self->pen;
+   my $highlight_pen = $self->get_style_pen( "highlight" );
 
    if( $rect->top == 0 ) {
       $rc->goto( 0, 0 );
@@ -131,18 +150,18 @@ sub render
 
          my $is_highlight = defined $self->{active_idx} && $idx == $self->{active_idx};
 
-         $rc->text( $name, $is_highlight ? ( $self->active_pen ) : ( $pen ) );
-         $rc->erase( 2, $pen );
+         $rc->text( $name, $is_highlight ? $highlight_pen : undef );
+         $rc->erase( 2 );
       }
 
-      $rc->erase_to( $rc->cols, $pen ) if !defined $args{last_idx};
+      $rc->erase_to( $rc->cols ) if !defined $args{last_idx};
    }
 
    foreach my $line ( max( $rect->top, 1 ) .. $rect->bottom ) {
-      $rc->erase_at( $line, 0, $rc->cols, $pen );
+      $rc->erase_at( $line, 0, $rc->cols );
    }
 
-   $rc->render_to_window( $win );
+   $rc->flush_to_window( $win );
 }
 
 sub popup_item
