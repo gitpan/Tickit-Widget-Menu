@@ -6,9 +6,9 @@ use Module::Build;
 my $build = Module::Build->new(
    module_name => 'Tickit::Widget::Menu',
    requires => {
-      'Tickit::RenderContext' => '0.07',
+      'Tickit::RenderBuffer' => 0,
       'Tickit::Test' => 0,
-      'Tickit::Widget' => '0.32',
+      'Tickit::Widget' => '0.36',
       'Tickit::Window' => '0.18',
       'perl' => '5.010', # feature 'switch'
    },

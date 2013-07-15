@@ -1,5 +1,10 @@
 Revision history for Tickit-Widget-Menu
 
+0.04    CHANGES:
+         * Updated to use Tickit::RenderBuffer and ->render_to_rb
+         * Second click on MenuBar should dismiss the menu
+         * Load T:W:Menu::Item automatically
+
 0.03    CHANGES:
          * Use Tickit::Style for pen configuration
          * Updated to Tickit::RenderContext 0.07

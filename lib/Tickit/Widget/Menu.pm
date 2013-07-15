@@ -11,14 +11,15 @@ use feature qw( switch );
 
 use Tickit::Window 0.18; # needs ->make_popup
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 # Much of this code actually lives in a class called T:W:Menu::base, which is
 # the base class used by T:W:Menu and T:W:MenuBar
 use base qw( Tickit::Widget::Menu::base );
+use Tickit::Widget::Menu::Item;
 use Tickit::Style;
 
-use Tickit::RenderContext qw( LINE_SINGLE );
+use Tickit::RenderBuffer qw( LINE_SINGLE );
 use Tickit::Utils qw( textwidth );
 use List::Util qw( max min );
 
@@ -33,7 +34,6 @@ C<Tickit::Widget::Menu> - display a menu of choices
 
  use Tickit;
  use Tickit::Widget::Menu;
- use Tickit::Widget::Menu::Item;
 
  my $tickit = Tickit->new;
 
@@ -167,6 +167,12 @@ Hides a menu previously displayed using C<popup>.
 
 =cut
 
+sub set_supermenu
+{
+   my $self = shift;
+   ( $self->{supermenu} ) = @_;
+}
+
 sub pos2item
 {
    my $self = shift;
@@ -188,63 +194,49 @@ sub pos2item
 sub render_item
 {
    my $self = shift;
-   my ( $idx ) = @_;
+   my ( $idx, $rb ) = @_;
 
-   my $win = $self->window or return;
-   $self->render(
-      rect => Tickit::Rect->new( top => $idx+1, left => 1, lines => 1, cols => $win->cols - 2 )
-   );
-}
+   my $cols = $self->window->cols;
+   my $line = $idx + 1;
 
-sub render
-{
-   my $self = shift;
-   my %args = @_;
-
-   my $win = $self->window or return;
-   $win->is_visible or return;
-   my $rect = $args{rect};
-
-   my $rc = Tickit::RenderContext->new( lines => $win->lines, cols => $win->cols );
-   $rc->clip( $rect );
-   $rc->setpen( $self->pen );
-
-   my $highlight_pen = $self->get_style_pen( "highlight" );
-
-   my $lines = $win->lines;
-   my $cols  = $win->cols;
-
-   $rc->hline_at( 0, 0, $cols-1, LINE_SINGLE );
-   $rc->hline_at( $lines-1, 0, $cols-1, LINE_SINGLE );
-   $rc->vline_at( 0, $lines-1, 0, LINE_SINGLE );
-   $rc->vline_at( 0, $lines-1, $cols-1, LINE_SINGLE );
-
-   # This is clipped anyway, but useful to avoid overhead if we can
-   foreach my $line ( max($rect->top, 1) .. min($rect->bottom-1, $win->lines-2) ) {
-      my $idx = $line - 1;
-
-      my $item = $self->{items}[$idx];
-      if( $item == separator ) {
-         $rc->hline_at( $line, 0, $cols-1, LINE_SINGLE );
+   my $item = $self->{items}[$idx];
+   if( $item == separator ) {
+      $rb->hline_at( $line, 0, $cols-1, LINE_SINGLE );
+   }
+   else {
+      $rb->erase_at( $line, 1, 1 );
+      if( $item->isa( "Tickit::Widget::Menu" ) ) {
+         $rb->text_at( $line, $cols-2, ">" );
       }
       else {
-         $rc->erase_at( $line, 1, 1 );
-         if( $item->isa( "Tickit::Widget::Menu" ) ) {
-            $rc->text_at( $line, $cols-2, ">" );
-         }
-         else {
-            $rc->erase_at( $line, $cols-2, 1 );
-         }
-
-         my $pen = defined $self->{active_idx} && $idx == $self->{active_idx}
-                     ? $highlight_pen : undef;
-
-         $rc->erase_at( $line, 2, $cols-4, $pen );
-         $rc->text_at( $line, 2, $item->name, $pen );
+         $rb->erase_at( $line, $cols-2, 1 );
       }
-   }
 
-   $rc->flush_to_window( $win );
+      my $pen = defined $self->{active_idx} && $idx == $self->{active_idx}
+                  ? $self->get_style_pen( "highlight" ) : undef;
+
+      $rb->erase_at( $line, 2, $cols-4, $pen );
+      $rb->text_at( $line, 2, $item->name, $pen );
+   }
+}
+
+sub render_to_rb
+{
+   my $self = shift;
+   my ( $rb, $rect ) = @_;
+
+   my $lines = $self->window->lines;
+   my $cols  = $self->window->cols;
+
+   $rb->hline_at( 0, 0, $cols-1, LINE_SINGLE );
+   $rb->hline_at( $lines-1, 0, $cols-1, LINE_SINGLE );
+   $rb->vline_at( 0, $lines-1, 0, LINE_SINGLE );
+   $rb->vline_at( 0, $lines-1, $cols-1, LINE_SINGLE );
+
+   foreach my $line ( $rect->linerange( 1, $lines-2 ) ) {
+      my $idx = $line - 1;
+      $self->render_item( $idx, $rb );
+   }
 }
 
 sub popup_item
@@ -262,17 +254,30 @@ sub activated
    my $self = shift;
    $self->dismiss;
 
+   $self->{supermenu}->activated if $self->{supermenu};
    $self->{on_activated}->() if $self->{on_activated};
+}
+
+sub dismiss
+{
+   my $self = shift;
+
+   if( $self->window ) {
+      $self->window->hide;
+      $self->set_window( undef );
+   }
+
+   $self->SUPER::dismiss;
 }
 
 sub on_key
 {
    my $self = shift;
-   my ( $type, $str ) = @_;
+   my ( $args ) = @_;
 
    my $items = $self->{items};
 
-   for( $str ) {
+   for( $args->str ) {
       when( "Down" ) {
          my $idx = $self->{active_idx};
          if( defined $idx ) {
@@ -284,7 +289,7 @@ sub on_key
 
          $idx++, $idx %= @$items while $items->[$idx] == separator;
 
-         $self->activate_item( $idx );
+         $self->highlight_item( $idx );
       }
       when( "Up" ) {
          my $idx = $self->{active_idx};
@@ -297,7 +302,7 @@ sub on_key
 
          $idx--, $idx %= @$items while $items->[$idx] == separator;
 
-         $self->activate_item( $idx );
+         $self->highlight_item( $idx );
       }
       default {
          return $self->SUPER::on_key( @_ );
@@ -310,19 +315,18 @@ sub on_key
 sub on_mouse_item
 {
    my $self = shift;
-   my ( $event, $button, $line, $col, $item, $item_idx, $item_col ) = @_;
+   my ( $args, $item, $item_idx, $item_col ) = @_;
 
    # Separators do not react to mouse
    return 1 if $item == separator;
 
-   if( $event eq "press" || $event eq "drag" and $button == 1 ) {
-      $self->activate_item( $item_idx );
+   my $event = $args->type;
+   if( $event eq "press" || $event eq "drag" and $args->button == 1 ) {
+      $self->expand_item( $item_idx );
    }
    elsif( $event eq "release" ) {
-      if( defined $self->{active_idx} and $self->{active_idx} == $item_idx and
-          !$item->isa( "Tickit::Widget::Menu" ) ) {
-         $self->activated;
-         $item->activate;
+      if( defined $self->{active_idx} and $self->{active_idx} == $item_idx ) {
+         $self->activate_item( $item_idx );
       }
    }
 

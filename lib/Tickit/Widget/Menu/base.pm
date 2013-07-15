@@ -1,7 +1,7 @@
 #  You may distribute under the terms of either the GNU General Public License
 #  or the Artistic License (the same terms as Perl itself)
 #
-#  (C) Paul Evans, 2012 -- leonerd@leonerd.org.uk
+#  (C) Paul Evans, 2012-2013 -- leonerd@leonerd.org.uk
 
 package Tickit::Widget::Menu::base;
 
@@ -11,7 +11,7 @@ use feature qw( switch );
 
 use base qw( Tickit::Widget );
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 use Carp;
 
@@ -62,12 +62,16 @@ sub push_item
    push @{ $self->{items} }, $item;
 }
 
-sub activate_item
+sub highlight_item
 {
    my $self = shift;
    my ( $idx ) = @_;
 
    return if defined $self->{active_idx} and $idx == $self->{active_idx};
+
+   my $win = $self->window;
+   my $rb = Tickit::RenderBuffer->new( lines => $win->lines, cols => $win->cols );
+   $rb->setpen( $self->pen );
 
    if( defined( my $old_idx = $self->{active_idx} ) ) {
       undef $self->{active_idx};
@@ -75,22 +79,43 @@ sub activate_item
       if( $old_item->isa( "Tickit::Widget::Menu" ) ) {
          $old_item->dismiss;
       }
-      $self->render_item( $old_idx );
+      $self->render_item( $old_idx, $rb );
    }
 
    $self->{active_idx} = $idx;
-   $self->render_item( $idx );
+   $self->render_item( $idx, $rb );
+
+   $rb->flush_to_window( $win );
+}
+
+sub expand_item
+{
+   my $self = shift;
+   my ( $idx ) = @_;
+
+   $self->highlight_item( $idx );
 
    my $item = $self->{items}[$idx];
    if( $item->isa( "Tickit::Widget::Menu" ) ) {
       $self->popup_item( $idx );
-      $item->set_on_activated( sub {
-         undef $self->{active_idx};
-         $self->activated
-      } );
+      $item->set_supermenu( $self );
    }
+   # else don't bother expanding non-menus
+}
 
-   $self->window->term->flush;
+sub activate_item
+{
+   my $self = shift;
+   my ( $idx ) = @_;
+
+   my $item = $self->{items}[$idx];
+   if( $item->isa( "Tickit::Widget::Menu" ) ) {
+      $self->expand_item( $idx );
+   }
+   else {
+      $self->activated;
+      $item->activate;
+   }
 }
 
 sub set_on_activated
@@ -103,10 +128,6 @@ sub dismiss
 {
    my $self = shift;
 
-   $self->window->hide;
-
-   $self->set_window( undef );
-
    if( defined $self->{active_idx} ) {
       my $item = $self->{items}[$self->{active_idx}];
       $item->dismiss if $item->isa( "Tickit::Widget::Menu" );
@@ -118,20 +139,17 @@ sub dismiss
 sub on_key
 {
    my $self = shift;
-   my ( $type, $str ) = @_;
+   my ( $args ) = @_;
 
-   return 1 unless $type eq "key"; # don't react to text
+   return 1 unless $args->type eq "key"; # don't react to text
 
-   for( $str ) {
+   for( $args->str ) {
       when( "Escape") {
          $self->dismiss;
       }
       when( "Enter" ) {
          return 1 unless defined( my $idx = $self->{active_idx} );
-
-         undef $self->{active_idx};
-         $self->dismiss;
-         $self->{items}[$idx]->activate;
+         $self->activate_item( $idx );
       }
    }
 
@@ -141,18 +159,21 @@ sub on_key
 sub on_mouse
 {
    my $self = shift;
-   my ( $event, $button, $line, $col ) = @_;
+   my ( $args ) = @_;
+
+   my $line = $args->line;
+   my $col  = $args->col;
 
    if( $line < 0 or $line >= $self->window->lines or
        $col  < 0 or $col  >= $self->window->cols ) {
-      $self->dismiss, return 0 if $event eq "press";
+      $self->dismiss, return 0 if $args->type eq "press";
       return 0;
    }
 
    my ( $item, $item_idx, $item_col ) = $self->pos2item( $line, $col );
    $item or return 1;
 
-   $self->on_mouse_item( $event, $button, $line, $col, $item, $item_idx, $item_col );
+   $self->on_mouse_item( $args, $item, $item_idx, $item_col );
 }
 
 0x55AA;

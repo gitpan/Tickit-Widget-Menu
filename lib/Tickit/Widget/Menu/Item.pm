@@ -9,7 +9,7 @@ use strict;
 use warnings;
 # Not a Tickit::Widget
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 use Tickit::Utils qw( textwidth );
 

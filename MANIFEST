@@ -17,7 +17,8 @@ t/10menu-render.t
 t/11menu-input-key.t
 t/12menu-input-mouse.t
 t/20submenu-render.t
-t/21submenu-input-mouse.t
+t/21submenu-input-key.t
+t/22submenu-input-mouse.t
 t/30menubar-render.t
 t/32menubar-input-mouse.t
 t/99pod.t

@@ -4,7 +4,6 @@ NAME
 SYNOPSIS
      use Tickit;
      use Tickit::Widget::Menu;
-     use Tickit::Widget::Menu::Item;
 
      my $tickit = Tickit->new;
 

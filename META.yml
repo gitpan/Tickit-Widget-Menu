@@ -5,7 +5,7 @@ author:
 build_requires:
   Test::More: 0.88
 dynamic_config: 1
-generated_by: 'Module::Build version 0.4001, CPAN::Meta::Converter version 2.120921'
+generated_by: 'Module::Build version 0.4005, CPAN::Meta::Converter version 2.120921'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -14,22 +14,22 @@ name: Tickit-Widget-Menu
 provides:
   Tickit::Widget::Menu:
     file: lib/Tickit/Widget/Menu.pm
-    version: 0.03
+    version: 0.04
   Tickit::Widget::Menu::Item:
     file: lib/Tickit/Widget/Menu/Item.pm
-    version: 0.03
+    version: 0.04
   Tickit::Widget::Menu::base:
     file: lib/Tickit/Widget/Menu/base.pm
-    version: 0.03
+    version: 0.04
   Tickit::Widget::MenuBar:
     file: lib/Tickit/Widget/MenuBar.pm
-    version: 0.03
+    version: 0.04
 requires:
-  Tickit::RenderContext: 0.07
+  Tickit::RenderBuffer: 0
   Tickit::Test: 0
-  Tickit::Widget: 0.32
+  Tickit::Widget: 0.36
   Tickit::Window: 0.18
   perl: 5.010
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.03
+version: 0.04

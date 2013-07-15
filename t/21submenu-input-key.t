@@ -9,7 +9,6 @@ use Test::More;
 use Tickit::Test;
 
 use Tickit::Widget::Menu;
-use Tickit::Widget::Menu::Item;
 
 my ( $term, $win ) = mk_term_and_window;
 
@@ -48,7 +47,27 @@ $win->set_on_expose( sub {
                  [BLANK(5), TEXT("└─────────┘",rv=>1)] ],
                'Display after ->popup' );
 
-   pressmouse( press => 1, 7, 10 );
+   presskey( key => "Down" );
+   flush_tickit;
+
+   is_display( [ BLANKLINES(5),
+                 [BLANK(5), TEXT("┌─────────┐",rv=>1)],
+                 [BLANK(5), TEXT("│ ",rv=>1), TEXT("Item 1 ",rv=>0,bg=>2), TEXT(" │",rv=>1)],
+                 [BLANK(5), TEXT("│ Submenu>│",rv=>1)],
+                 [BLANK(5), TEXT("└─────────┘",rv=>1)] ],
+               'Display after "Down"' );
+
+   presskey( key => "Down" );
+   flush_tickit;
+
+   is_display( [ BLANKLINES(5),
+                 [BLANK(5), TEXT("┌─────────┐",rv=>1)],
+                 [BLANK(5), TEXT("│ Item 1  │",rv=>1)],
+                 [BLANK(5), TEXT("│ ",rv=>1), TEXT("Submenu",rv=>0,bg=>2), TEXT(">│",rv=>1)],
+                 [BLANK(5), TEXT("└─────────┘",rv=>1)] ],
+               'Display after second "Down"' );
+
+   presskey( key => "Enter" );
    flush_tickit;
 
    is_display( [ BLANKLINES(5),
@@ -64,9 +83,9 @@ $win->set_on_expose( sub {
                         TEXT("│ Sub 3 │",rv=>1)],
                  [BLANK(16),
                         TEXT("└───────┘",rv=>1)] ],
-               'Display after mouse press on Submenu' );
+               'Display after "Enter"' );
 
-   pressmouse( drag => 1, 8, 20 );
+   presskey( key => "Down" );
    flush_tickit;
 
    is_display( [ BLANKLINES(5),
@@ -82,25 +101,15 @@ $win->set_on_expose( sub {
                         TEXT("│ Sub 3 │",rv=>1)],
                  [BLANK(16),
                         TEXT("└───────┘",rv=>1)] ],
-               'Display after mouse drag on Submenu' );
+               'Display after "Down"' );
 
-   pressmouse( drag => 1, 6, 8 );
+   presskey( key => "Enter" );
    flush_tickit;
 
-   is_display( [ BLANKLINES(5),
-                 [BLANK(5), TEXT("┌─────────┐",rv=>1)],
-                 [BLANK(5), TEXT("│ ",rv=>1), TEXT("Item 1 ",rv=>0,bg=>2), TEXT(" │",rv=>1)],
-                 [BLANK(5), TEXT("│ Submenu>│",rv=>1)],
-                 [BLANK(5), TEXT("└─────────┘",rv=>1)] ],
-               'Display after mouse drag to Item 1' );
-
-   pressmouse( release => 1, 6, 8 );
-   flush_tickit;
-
-   is( $activated, "Item 1", '$activated is Item 1 after mouse release' );
+   is( $activated, "Sub 1", '$activated is Sub 1 after "Enter" on Sub 1' );
 
    is_display( [ BLANKLINES(25) ],
-               'Display blank after mouse release on Item 1' );
+               'Display blank after "Enter" on Sub 1' );
 }
 
 done_testing;

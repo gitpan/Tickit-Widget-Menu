@@ -9,7 +9,6 @@ use Test::More;
 use Tickit::Test;
 
 use Tickit::Widget::Menu;
-use Tickit::Widget::Menu::Item;
 
 my ( $term, $win ) = mk_term_and_window;
 
