@@ -54,7 +54,7 @@ $win->set_on_expose( sub {
    pressmouse( press => 1, 7, 10 );
    flush_tickit;
 
-   is_termlog( [ GOTO(7,6), SETPEN(rv=>1), ERASECH(1,1), SETPEN(rv=>0,bg=>2), PRINT("Submenu"), SETPEN(rv=>1), PRINT(">"),
+   is_termlog( [ GOTO(7,5), SETPEN(rv=>1), PRINT("│"), SETPEN(rv=>1), ERASECH(1,1), SETPEN(rv=>0,bg=>2), PRINT("Submenu"), SETPEN(rv=>1), PRINT(">"), SETPEN(rv=>1), PRINT("│"),
                  GOTO( 7,16), SETPEN(rv=>1), PRINT("┌───────┐"),
                  GOTO( 8,16), SETPEN(rv=>1), PRINT("│"), SETPEN(rv=>1), ERASECH(1,1), SETPEN(rv=>1), PRINT("Sub 1"), SETPEN(rv=>1), ERASECH(1,1), SETPEN(rv=>1), PRINT("│"),
                  GOTO( 9,16), SETPEN(rv=>1), PRINT("│"), SETPEN(rv=>1), ERASECH(1,1), SETPEN(rv=>1), PRINT("Sub 2"), SETPEN(rv=>1), ERASECH(1,1), SETPEN(rv=>1), PRINT("│"),

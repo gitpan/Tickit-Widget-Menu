@@ -1,5 +1,12 @@
 Revision history for Tickit-Widget-Menu
 
+0.05    CHANGES:
+         * Allow a separator in MenuBar to right-justify remaining items
+         * Added key event handling logic - F10 to popup menu bar, arrows to
+           navigate, Enter to select, Escape to dismiss
+         * Use Tickit::Style information for keypress events
+         * Neater use of RenderBuffer to allow more flexibility in future
+
 0.04    CHANGES:
          * Updated to use Tickit::RenderBuffer and ->render_to_rb
          * Second click on MenuBar should dismiss the menu

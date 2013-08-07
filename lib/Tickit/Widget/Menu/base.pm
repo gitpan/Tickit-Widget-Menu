@@ -9,13 +9,13 @@ use strict;
 use warnings;
 use feature qw( switch );
 
-use base qw( Tickit::Widget );
+use base qw( Tickit::Widget Tickit::Widget::Menu::itembase );
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 use Carp;
 
-use constant CLEAR_BEFORE_RENDER => 0;
+use Tickit::Utils qw( textwidth );
 
 use constant separator => [];
 
@@ -24,14 +24,15 @@ sub new
    my $class = shift;
    my %args = @_;
 
-   foreach my $method (qw( pos2item on_mouse_item render_item popup_item activated )) {
+   foreach my $method (qw( pos2item on_mouse_item redraw_item popup_item activated )) {
       $class->can( $method ) or 
          croak "$class cannot ->$method - do you subclass and implement it?";
    }
    my $self = $class->SUPER::new( %args );
+   $self->_init_itembase( %args );
 
    $self->{items} = [];
-   $self->{name} = $args{name};
+   $self->{itemwidths} = [];
 
    $self->{active_idx} = undef; # index of keyboard-selected highlight
 
@@ -42,16 +43,17 @@ sub new
    return $self;
 }
 
-sub name
-{
-   my $self = shift;
-   return $self->{name};
-}
-
 sub items
 {
    my $self = shift;
    return @{ $self->{items} };
+}
+
+sub _itemwidth
+{
+   my $self = shift;
+   my ( $idx ) = @_;
+   return $self->{itemwidths}[$idx];
 }
 
 sub push_item
@@ -60,6 +62,7 @@ sub push_item
    my ( $item ) = @_;
 
    push @{ $self->{items} }, $item;
+   push @{ $self->{itemwidths} }, $item == separator ? 0 : textwidth $item->name;
 }
 
 sub highlight_item
@@ -69,23 +72,17 @@ sub highlight_item
 
    return if defined $self->{active_idx} and $idx == $self->{active_idx};
 
-   my $win = $self->window;
-   my $rb = Tickit::RenderBuffer->new( lines => $win->lines, cols => $win->cols );
-   $rb->setpen( $self->pen );
-
    if( defined( my $old_idx = $self->{active_idx} ) ) {
       undef $self->{active_idx};
       my $old_item = $self->{items}[$old_idx];
       if( $old_item->isa( "Tickit::Widget::Menu" ) ) {
          $old_item->dismiss;
       }
-      $self->render_item( $old_idx, $rb );
+      $self->redraw_item( $old_idx );
    }
 
    $self->{active_idx} = $idx;
-   $self->render_item( $idx, $rb );
-
-   $rb->flush_to_window( $win );
+   $self->redraw_item( $idx );
 }
 
 sub expand_item
@@ -136,21 +133,63 @@ sub dismiss
    undef $self->{active_idx};
 }
 
-sub on_key
+sub key_highlight_next
 {
    my $self = shift;
-   my ( $args ) = @_;
 
-   return 1 unless $args->type eq "key"; # don't react to text
+   my $items = $self->{items};
+   my $idx = $self->{active_idx};
 
-   for( $args->str ) {
-      when( "Escape") {
-         $self->dismiss;
-      }
-      when( "Enter" ) {
-         return 1 unless defined( my $idx = $self->{active_idx} );
-         $self->activate_item( $idx );
-      }
+   if( defined $idx ) {
+      $idx++, $idx %= @$items;
+   }
+   else {
+      $idx = 0;
+   }
+
+   $idx++, $idx %= @$items while $items->[$idx] == separator;
+
+   $self->highlight_item( $idx );
+
+   return 1;
+}
+
+sub key_highlight_prev
+{
+   my $self = shift;
+
+   my $items = $self->{items};
+   my $idx = $self->{active_idx};
+
+   if( defined $idx ) {
+      $idx--, $idx %= @$items;
+   }
+   else {
+      $idx = $#$items;
+   }
+
+   $idx--, $idx %= @$items while $items->[$idx] == separator;
+
+   $self->highlight_item( $idx );
+
+   return 1;
+}
+
+sub key_dismiss
+{
+   my $self = shift;
+
+   $self->dismiss;
+
+   return 1;
+}
+
+sub key_activate
+{
+   my $self = shift;
+
+   if( defined( my $idx = $self->{active_idx} ) ) {
+      $self->activate_item( $idx );
    }
 
    return 1;

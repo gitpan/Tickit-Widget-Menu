@@ -11,7 +11,7 @@ use feature qw( switch );
 
 use Tickit::Window 0.18; # needs ->make_popup
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 # Much of this code actually lives in a class called T:W:Menu::base, which is
 # the base class used by T:W:Menu and T:W:MenuBar
@@ -20,7 +20,6 @@ use Tickit::Widget::Menu::Item;
 use Tickit::Style;
 
 use Tickit::RenderBuffer qw( LINE_SINGLE );
-use Tickit::Utils qw( textwidth );
 use List::Util qw( max min );
 
 # Re-import the constant for compiletime use
@@ -75,13 +74,38 @@ The pen used to highlight the active menu selection
 
 =back
 
+The following style actions are used:
+
+=over 4
+
+=item highlight_next (<Down>)
+
+=item highlight_prev (<Up>)
+
+Highlight the next or previous item
+
+=item activate (<Enter>)
+
+Activate the highlighted item
+
+=item dismiss (<Escape>)
+
+Dismiss the menu
+
+=back
+
 =cut
 
 style_definition base =>
    rv => 1,
    highlight_rv => 0,
-   highlight_bg => "green";
+   highlight_bg => "green",
+   "<Down>"   => "highlight_next",
+   "<Up>"     => "highlight_prev",
+   "<Enter>"  => "activate",
+   "<Escape>" => "dismiss";
 
+use constant KEYPRESSES_FROM_STYLE => 1;
 use constant WIDGET_PEN_FROM_STYLE => 1;
 
 # These methods come from T:W:Menu::base but better to document them here so
@@ -123,7 +147,7 @@ sub lines
 sub cols
 {
    my $self = shift;
-   return 4 + max( map { $_ == separator ? 0 : textwidth $_->name } $self->items );
+   return 4 + max( map { $self->_itemwidth( $_ ) } 0 .. $self->items-1 );
 }
 
 =head2 $name = $menu->name
@@ -154,11 +178,12 @@ sub popup
    my $self = shift;
    my ( $parentwin, $line, $col ) = @_;
 
-   my $win = $parentwin->make_popup( $line, $col, $self->lines, $self->cols );
-
-   $self->set_window( $win );
-
-   $win->show;
+   # TODO: Work around immediate Tickit::Window behaviour
+   $parentwin->tickit->later( sub {
+      my $win = $parentwin->make_popup( $line, $col, $self->lines, $self->cols );
+      $self->set_window( $win );
+      $win->show;
+   });
 }
 
 =head2 $menu->dismiss
@@ -191,33 +216,14 @@ sub pos2item
    return ( $items[$line], $line, $col );
 }
 
-sub render_item
+sub redraw_item
 {
    my $self = shift;
-   my ( $idx, $rb ) = @_;
-
-   my $cols = $self->window->cols;
-   my $line = $idx + 1;
-
-   my $item = $self->{items}[$idx];
-   if( $item == separator ) {
-      $rb->hline_at( $line, 0, $cols-1, LINE_SINGLE );
-   }
-   else {
-      $rb->erase_at( $line, 1, 1 );
-      if( $item->isa( "Tickit::Widget::Menu" ) ) {
-         $rb->text_at( $line, $cols-2, ">" );
-      }
-      else {
-         $rb->erase_at( $line, $cols-2, 1 );
-      }
-
-      my $pen = defined $self->{active_idx} && $idx == $self->{active_idx}
-                  ? $self->get_style_pen( "highlight" ) : undef;
-
-      $rb->erase_at( $line, 2, $cols-4, $pen );
-      $rb->text_at( $line, 2, $item->name, $pen );
-   }
+   my ( $idx ) = @_;
+   $self->window->expose( Tickit::Rect->new(
+      top => $idx + 1, lines => 1,
+      left => 0, cols => $self->window->cols,
+   ) );
 }
 
 sub render_to_rb
@@ -235,7 +241,32 @@ sub render_to_rb
 
    foreach my $line ( $rect->linerange( 1, $lines-2 ) ) {
       my $idx = $line - 1;
-      $self->render_item( $idx, $rb );
+      my $item = $self->{items}[$idx];
+
+      if( $item == separator ) {
+         $rb->hline_at( $line, 0, $cols-1, LINE_SINGLE );
+      }
+      else {
+         $rb->erase_at( $line, 1, 1 );
+         if( $item->isa( "Tickit::Widget::Menu" ) ) {
+            $rb->text_at( $line, $cols-2, ">" );
+         }
+         else {
+            $rb->erase_at( $line, $cols-2, 1 );
+         }
+
+         my $pen = defined $self->{active_idx} && $idx == $self->{active_idx}
+                     ? $self->get_style_pen( "highlight" ) : undef;
+
+         $rb->savepen;
+         $rb->setpen( $pen ) if $pen;
+
+         $rb->erase_at( $line, 2, $cols-4 );
+         $rb->goto( $line, 2 );
+         $item->render_label( $rb, $cols-4, $self );
+
+         $rb->restore;
+      }
    }
 }
 
@@ -264,7 +295,12 @@ sub dismiss
 
    if( $self->window ) {
       $self->window->hide;
-      $self->set_window( undef );
+      # TODO: Work around Tickit::Window's immediate adjustment of child
+      # hierarchy which means that the next sibling gets skipped. This should
+      # be fixed in Tickit core
+      $self->window->tickit->later( sub {
+         $self->set_window( undef );
+      });
    }
 
    $self->SUPER::dismiss;
@@ -273,43 +309,9 @@ sub dismiss
 sub on_key
 {
    my $self = shift;
-   my ( $args ) = @_;
 
-   my $items = $self->{items};
-
-   for( $args->str ) {
-      when( "Down" ) {
-         my $idx = $self->{active_idx};
-         if( defined $idx ) {
-            $idx++, $idx %= @$items;
-         }
-         else {
-            $idx = 0;
-         }
-
-         $idx++, $idx %= @$items while $items->[$idx] == separator;
-
-         $self->highlight_item( $idx );
-      }
-      when( "Up" ) {
-         my $idx = $self->{active_idx};
-         if( defined $idx ) {
-            $idx--, $idx %= @$items;
-         }
-         else {
-            $idx = $#$items;
-         }
-
-         $idx--, $idx %= @$items while $items->[$idx] == separator;
-
-         $self->highlight_item( $idx );
-      }
-      default {
-         return $self->SUPER::on_key( @_ );
-      }
-   }
-
-   return 1;
+   # Eat keys if there's no supermenu to pass them to
+   return !$self->{supermenu};
 }
 
 sub on_mouse_item

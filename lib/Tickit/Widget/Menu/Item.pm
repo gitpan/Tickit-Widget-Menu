@@ -7,9 +7,9 @@ package Tickit::Widget::Menu::Item;
 
 use strict;
 use warnings;
-# Not a Tickit::Widget
+use base qw( Tickit::Widget::Menu::itembase );
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 use Tickit::Utils qw( textwidth );
 
@@ -53,17 +53,12 @@ sub new
    my $class = shift;
    my %args = @_;
 
-   my $self = bless {}, $class;
-
-   defined $args{$_} and $self->{$_} = $args{$_} for qw( name on_activate );
+   my $self = bless {
+      on_activate => $args{on_activate},
+   }, $class;
+   $self->_init_itembase( %args );
 
    return $self;
-}
-
-sub name
-{
-   my $self = shift;
-   return $self->{name};
 }
 
 sub activate

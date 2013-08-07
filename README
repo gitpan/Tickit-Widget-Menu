@@ -39,6 +39,18 @@ STYLE
     highlight => PEN
         The pen used to highlight the active menu selection
 
+    The following style actions are used:
+
+    highlight_next (<Down>)
+    highlight_prev (<Up>)
+        Highlight the next or previous item
+
+    activate (<Enter>)
+        Activate the highlighted item
+
+    dismiss (<Escape>)
+        Dismiss the menu
+
 CONSTRUCTOR
   $menu = Tickit::Widget::Menu->new( %args )
     Constructs a new `Tickit::Widget::Menu' object.

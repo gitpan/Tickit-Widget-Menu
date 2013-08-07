@@ -17,6 +17,8 @@ my ( $term, $win ) = mk_term_and_window;
       items => [
          Tickit::Widget::Menu->new( name => "File", items => [] ),
          Tickit::Widget::Menu->new( name => "Edit", items => [] ),
+         Tickit::Widget::Menu->separator,
+         Tickit::Widget::Menu->new( name => "Help", items => [] ),
       ]
    );
 
@@ -24,7 +26,7 @@ my ( $term, $win ) = mk_term_and_window;
    isa_ok( $menubar, "Tickit::Widget::MenuBar", '$menubar isa Tickit::Widget::MenuBar' );
 
    is( $menubar->lines,  1, '$menubar->lines' );
-   is( $menubar->cols,  10, '$menubar->cols' );
+   is( $menubar->cols,  18, '$menubar->cols' );
 
    $menubar->set_window( $win );
    flush_tickit;
@@ -37,14 +39,14 @@ my ( $term, $win ) = mk_term_and_window;
                  SETPEN(rv=>1),
                  PRINT("Edit"),
                  SETPEN(rv=>1),
-                 ERASECH(2,1),
+                 ERASECH(66,1),
                  SETPEN(rv=>1),
-                 ERASECH(68,0),
+                 PRINT("Help"),
 
                  map { GOTO($_,0), SETPEN(rv=>1), ERASECH(80) } 1 .. 24 ],
                'Termlog initially' );
 
-   is_display( [ [TEXT("File  Edit",rv=>1)] ],
+   is_display( [ [TEXT("File  Edit" . ( " " x 66 ) . "Help",rv=>1)] ],
                'Display initially' );
 }
 

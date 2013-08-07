@@ -59,6 +59,12 @@ my $menubar = Tickit::Widget::MenuBar->new(
                } @colours ] ),
          ],
       ),
+      Tickit::Widget::Menu->separator,
+      Tickit::Widget::Menu->new( name => "Help",
+         items => [
+            Tickit::Widget::Menu::Item->new( name => "About" ),
+         ],
+      ),
    ],
 );
 

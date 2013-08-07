@@ -14,22 +14,25 @@ name: Tickit-Widget-Menu
 provides:
   Tickit::Widget::Menu:
     file: lib/Tickit/Widget/Menu.pm
-    version: 0.04
+    version: 0.05
   Tickit::Widget::Menu::Item:
     file: lib/Tickit/Widget/Menu/Item.pm
-    version: 0.04
+    version: 0.05
   Tickit::Widget::Menu::base:
     file: lib/Tickit/Widget/Menu/base.pm
-    version: 0.04
+    version: 0.05
+  Tickit::Widget::Menu::itembase:
+    file: lib/Tickit/Widget/Menu/itembase.pm
+    version: 0
   Tickit::Widget::MenuBar:
     file: lib/Tickit/Widget/MenuBar.pm
-    version: 0.04
+    version: 0.05
 requires:
-  Tickit::RenderBuffer: 0
+  Tickit::RenderBuffer: 0.37
   Tickit::Test: 0
   Tickit::Widget: 0.36
   Tickit::Window: 0.18
   perl: 5.010
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.04
+version: 0.05
