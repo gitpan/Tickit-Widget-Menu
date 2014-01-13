@@ -11,7 +11,7 @@ use feature qw( switch );
 
 use Tickit::Window 0.18; # needs ->make_popup
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 # Much of this code actually lives in a class called T:W:Menu::base, which is
 # the base class used by T:W:Menu and T:W:MenuBar
@@ -134,6 +134,13 @@ to the C<push_item> method after construction.
 
 =back
 
+=head2 $separator = Tickit::Window::Menu->separator
+
+Returns a special menu item which draws a separation line between its
+neighbours.
+
+=cut
+
 =head1 METHODS
 
 =cut
@@ -161,6 +168,10 @@ Returns the list of items currently stored.
 =head2 $menu->push_item( $item )
 
 Adds another item.
+
+Each item may either be created using L<Tickit::Window::Menu::Item>'s
+constructor, another C<Tickit::Widget::Menu> item itself (to create a
+submenu), or the special separator value.
 
 =cut
 

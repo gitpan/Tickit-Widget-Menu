@@ -13,11 +13,10 @@ use Tickit::Widget::Menu;
 my ( $term, $win ) = mk_term_and_window;
 
 # For later tests we need $win to clear itself
-$win->set_on_expose( sub {
-   my $self = shift;
-   my ( $rect ) = @_;
-   $self->clearrect( $rect );
-} );
+$win->set_on_expose( with_rb => sub {
+   my ( undef, $rb, $rect ) = @_;
+   $rb->eraserect( $rect );
+});
 
 {
    my $activated;

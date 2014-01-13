@@ -4,7 +4,7 @@
       "Paul Evans <leonerd@leonerd.org.uk>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.4005, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "Module::Build version 0.4202",
    "license" : [
       "perl_5"
    ],
@@ -24,7 +24,7 @@
             "Tickit::RenderBuffer" : "0.37",
             "Tickit::Test" : "0",
             "Tickit::Widget" : "0.36",
-            "Tickit::Window" : "0.18",
+            "Tickit::Window" : "0.42",
             "perl" : "5.010"
          }
       }
@@ -32,23 +32,22 @@
    "provides" : {
       "Tickit::Widget::Menu" : {
          "file" : "lib/Tickit/Widget/Menu.pm",
-         "version" : "0.05"
+         "version" : "0.06"
       },
       "Tickit::Widget::Menu::Item" : {
          "file" : "lib/Tickit/Widget/Menu/Item.pm",
-         "version" : "0.05"
+         "version" : "0.06"
       },
       "Tickit::Widget::Menu::base" : {
          "file" : "lib/Tickit/Widget/Menu/base.pm",
-         "version" : "0.05"
+         "version" : "0.06"
       },
       "Tickit::Widget::Menu::itembase" : {
-         "file" : "lib/Tickit/Widget/Menu/itembase.pm",
-         "version" : 0
+         "file" : "lib/Tickit/Widget/Menu/itembase.pm"
       },
       "Tickit::Widget::MenuBar" : {
          "file" : "lib/Tickit/Widget/MenuBar.pm",
-         "version" : "0.05"
+         "version" : "0.06"
       }
    },
    "release_status" : "stable",
@@ -57,5 +56,5 @@
          "http://dev.perl.org/licenses/"
       ]
    },
-   "version" : "0.05"
+   "version" : "0.06"
 }

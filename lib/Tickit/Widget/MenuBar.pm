@@ -12,7 +12,7 @@ use feature qw( switch );
 use base qw( Tickit::Widget::Menu::base );
 use Tickit::Style;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 use Carp;
 

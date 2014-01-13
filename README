@@ -67,6 +67,10 @@ CONSTRUCTOR
             to add to the menu. Equivalent to psasing each to the
             `push_item' method after construction.
 
+  $separator = Tickit::Window::Menu->separator
+    Returns a special menu item which draws a separation line between its
+    neighbours.
+
 METHODS
   $name = $menu->name
     Returns the string name for the menu.
@@ -76,6 +80,10 @@ METHODS
 
   $menu->push_item( $item )
     Adds another item.
+
+    Each item may either be created using Tickit::Window::Menu::Item's
+    constructor, another `Tickit::Widget::Menu' item itself (to create a
+    submenu), or the special separator value.
 
   $menu->popup( $win, $line, $col )
     Makes the menu appear at the given position relative to the given
