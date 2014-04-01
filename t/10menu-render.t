@@ -33,7 +33,6 @@ $win->set_on_expose( with_rb => sub {
    is( $menu->cols,  10, '$menu->cols' );
 
    $menu->popup( $win, 5, 5 );
-
    flush_tickit;
 
    is_termlog( [ GOTO(5,5), SETPEN(rv=>1), PRINT("┌────────┐"),
@@ -50,6 +49,7 @@ $win->set_on_expose( with_rb => sub {
                'Display after ->popup' );
 
    $menu->dismiss;
+   flush_tickit;
 
    is_termlog( [ GOTO(5,5), SETPEN(), ERASECH(10),
                  GOTO(6,5), SETPEN(), ERASECH(10),
@@ -69,7 +69,6 @@ $win->set_on_expose( with_rb => sub {
    );
 
    $menu->popup( $win, 5, 5 );
-
    flush_tickit;
 
    is_termlog( [ GOTO(5,5), SETPEN(rv=>1), PRINT("┌────────┐"),

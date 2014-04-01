@@ -1,5 +1,11 @@
 Revision history for Tickit-Widget-Menu
 
+0.07    2014/04/01 22:49:12
+        [BUGFIXES]
+         * Remember to flush_tickit after ->dismiss in unit tests
+         * Depend on Tickit >= 0.43 for new rendering order
+         * Declare $VERSION in itembase.pm
+
 0.06    2014/01/13 00:09:59
         [CHANGES]
          * Updated for Tickit 0.42:

@@ -11,7 +11,7 @@ use feature qw( switch );
 
 use Tickit::Window 0.18; # needs ->make_popup
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 # Much of this code actually lives in a class called T:W:Menu::base, which is
 # the base class used by T:W:Menu and T:W:MenuBar

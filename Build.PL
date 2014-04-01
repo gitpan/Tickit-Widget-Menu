@@ -9,7 +9,7 @@ my $build = Module::Build->new(
       'Tickit::RenderBuffer' => '0.37', # bugfixed ->setpen
       'Tickit::Test' => 0,
       'Tickit::Widget' => '0.36',
-      'Tickit::Window' => '0.42',
+      'Tickit::Window' => '0.43',
       'perl' => '5.010', # feature 'switch'
    },
    build_requires => {

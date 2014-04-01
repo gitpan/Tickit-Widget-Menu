@@ -7,6 +7,7 @@ use utf8;
 use Test::More;
 
 use Tickit::Test;
+Tickit::Window->VERSION( '0.43' ); # changed rendering order
 
 use Tickit::Widget::Menu;
 
@@ -34,7 +35,6 @@ $win->set_on_expose( with_rb => sub {
    );
 
    $menu->popup( $win, 5, 5 );
-
    flush_tickit;
 
    is_termlog( [ GOTO(5,5), SETPEN(rv=>1), PRINT("┌─────────┐"),
@@ -81,11 +81,8 @@ $win->set_on_expose( with_rb => sub {
 
    is_termlog( [ GOTO(5,5), SETPEN(), ERASECH(11),
                  GOTO(6,5), SETPEN(), ERASECH(11),
-                 GOTO(7,5), SETPEN(), ERASECH(11),
-                 GOTO(8,5), SETPEN(), ERASECH(11),
-
-                 GOTO(7,16), SETPEN(), ERASECH(9),
-                 GOTO(8,16), SETPEN(), ERASECH(9),
+                 GOTO(7,5), SETPEN(), ERASECH(20),
+                 GOTO(8,5), SETPEN(), ERASECH(20),
                  GOTO(9,16), SETPEN(), ERASECH(9),
                  GOTO(10,16), SETPEN(), ERASECH(9),
                  GOTO(11,16), SETPEN(), ERASECH(9) ],
