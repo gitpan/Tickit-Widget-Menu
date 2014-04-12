@@ -1,5 +1,10 @@
 Revision history for Tickit-Widget-Menu
 
+0.08    2014/04/12 14:37:24
+        [CHANGES]
+         * Avoid $rb->flush_to_window in unit tests; perform testing directly
+           to mockterm
+
 0.07    2014/04/01 22:49:12
         [BUGFIXES]
          * Remember to flush_tickit after ->dismiss in unit tests

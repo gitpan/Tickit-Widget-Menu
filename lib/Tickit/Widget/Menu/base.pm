@@ -11,7 +11,7 @@ use feature qw( switch );
 
 use base qw( Tickit::Widget Tickit::Widget::Menu::itembase );
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 use Carp;
 

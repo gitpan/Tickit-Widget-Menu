@@ -21,7 +21,7 @@
       },
       "runtime" : {
          "requires" : {
-            "Tickit::RenderBuffer" : "0.37",
+            "Tickit::RenderBuffer" : "0.43",
             "Tickit::Test" : "0",
             "Tickit::Widget" : "0.36",
             "Tickit::Window" : "0.43",
@@ -32,23 +32,23 @@
    "provides" : {
       "Tickit::Widget::Menu" : {
          "file" : "lib/Tickit/Widget/Menu.pm",
-         "version" : "0.07"
+         "version" : "0.08"
       },
       "Tickit::Widget::Menu::Item" : {
          "file" : "lib/Tickit/Widget/Menu/Item.pm",
-         "version" : "0.07"
+         "version" : "0.08"
       },
       "Tickit::Widget::Menu::base" : {
          "file" : "lib/Tickit/Widget/Menu/base.pm",
-         "version" : "0.07"
+         "version" : "0.08"
       },
       "Tickit::Widget::Menu::itembase" : {
          "file" : "lib/Tickit/Widget/Menu/itembase.pm",
-         "version" : "0.07"
+         "version" : "0.08"
       },
       "Tickit::Widget::MenuBar" : {
          "file" : "lib/Tickit/Widget/MenuBar.pm",
-         "version" : "0.07"
+         "version" : "0.08"
       }
    },
    "release_status" : "stable",
@@ -57,5 +57,5 @@
          "http://dev.perl.org/licenses/"
       ]
    },
-   "version" : "0.07"
+   "version" : "0.08"
 }

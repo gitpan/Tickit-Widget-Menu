@@ -10,7 +10,7 @@ use Tickit::RenderBuffer;
 
 use Tickit::Widget::Menu::Item;
 
-my $win = mk_window;
+my $term = mk_term;
 
 my $activated;
 
@@ -30,7 +30,7 @@ my $activated;
 
    $item->render_label( $rb, 10, undef );
 
-   $rb->flush_to_window( $win );
+   $rb->flush_to_term( $term );
    flush_tickit;
 
    is_termlog( [ GOTO(0,0), SETPEN(bg=>4), PRINT("Some item") ],
