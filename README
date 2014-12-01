@@ -85,6 +85,11 @@ METHODS
     constructor, another `Tickit::Widget::Menu' item itself (to create a
     submenu), or the special separator value.
 
+  $menu->highlight_item( $idx )
+    Gives the selection highlight to the item at the given index. This may
+    be called before the menu is actually displayed in order to pre-select
+    the highlight initially.
+
   $menu->popup( $win, $line, $col )
     Makes the menu appear at the given position relative to the given
     window. Note that as `$win->make_popup' is called, the menu is always

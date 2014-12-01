@@ -8,7 +8,7 @@ package Tickit::Widget::Menu::itembase;
 use strict;
 use warnings;
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 sub _init_itembase
 {

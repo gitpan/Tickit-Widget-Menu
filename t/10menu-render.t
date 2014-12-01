@@ -85,6 +85,33 @@ $win->set_on_expose( with_rb => sub {
                  [BLANK(5), TEXT("│ Item 2 │",rv=>1)],
                  [BLANK(5), TEXT("└────────┘",rv=>1)] ],
                'Display with menu with separator' );
+
+   $menu->dismiss;
+   flush_tickit;
+}
+
+# Pre-highlight
+{
+   my $menu = Tickit::Widget::Menu->new(
+      items => [ map {
+         Tickit::Widget::Menu::Item->new( name => $_, on_activate => sub {} )
+      } qw( One Two Three ) ],
+   );
+
+   $menu->highlight_item( 1 );
+
+   $menu->popup( $win, 0, 0 );
+   flush_tickit;
+
+   is_display( [ [TEXT("┌───────┐",rv=>1)],
+                 [TEXT("│ One   │",rv=>1)],
+                 [TEXT("│ ",rv=>1), TEXT("Two  ",bg=>2), TEXT(" │",rv=>1)],
+                 [TEXT("│ Three │",rv=>1)],
+                 [TEXT("└───────┘",rv=>1)] ],
+               'Display with pre-highlight' );
+
+   $menu->dismiss;
+   flush_tickit;
 }
 
 done_testing;

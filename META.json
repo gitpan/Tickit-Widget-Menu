@@ -4,7 +4,7 @@
       "Paul Evans <leonerd@leonerd.org.uk>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.4205",
+   "generated_by" : "Module::Build version 0.421",
    "license" : [
       "perl_5"
    ],
@@ -32,30 +32,31 @@
    "provides" : {
       "Tickit::Widget::Menu" : {
          "file" : "lib/Tickit/Widget/Menu.pm",
-         "version" : "0.08"
+         "version" : "0.09"
       },
       "Tickit::Widget::Menu::Item" : {
          "file" : "lib/Tickit/Widget/Menu/Item.pm",
-         "version" : "0.08"
+         "version" : "0.09"
       },
       "Tickit::Widget::Menu::base" : {
          "file" : "lib/Tickit/Widget/Menu/base.pm",
-         "version" : "0.08"
+         "version" : "0.09"
       },
       "Tickit::Widget::Menu::itembase" : {
          "file" : "lib/Tickit/Widget/Menu/itembase.pm",
-         "version" : "0.08"
+         "version" : "0.09"
       },
       "Tickit::Widget::MenuBar" : {
          "file" : "lib/Tickit/Widget/MenuBar.pm",
-         "version" : "0.08"
+         "version" : "0.09"
       }
    },
    "release_status" : "stable",
    "resources" : {
       "license" : [
          "http://dev.perl.org/licenses/"
-      ]
+      ],
+      "x_IRC" : "irc://irc.freenode.net/#tickit"
    },
-   "version" : "0.08"
+   "version" : "0.09"
 }

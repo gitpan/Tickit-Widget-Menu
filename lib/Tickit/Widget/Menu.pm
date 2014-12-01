@@ -1,7 +1,7 @@
 #  You may distribute under the terms of either the GNU General Public License
 #  or the Artistic License (the same terms as Perl itself)
 #
-#  (C) Paul Evans, 2012-2013 -- leonerd@leonerd.org.uk
+#  (C) Paul Evans, 2012-2014 -- leonerd@leonerd.org.uk
 
 package Tickit::Widget::Menu;
 
@@ -11,7 +11,7 @@ use feature qw( switch );
 
 use Tickit::Window 0.18; # needs ->make_popup
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 # Much of this code actually lives in a class called T:W:Menu::base, which is
 # the base class used by T:W:Menu and T:W:MenuBar
@@ -172,6 +172,14 @@ Adds another item.
 Each item may either be created using L<Tickit::Window::Menu::Item>'s
 constructor, another C<Tickit::Widget::Menu> item itself (to create a
 submenu), or the special separator value.
+
+=cut
+
+=head2 $menu->highlight_item( $idx )
+
+Gives the selection highlight to the item at the given index. This may be
+called before the menu is actually displayed in order to pre-select the
+highlight initially.
 
 =cut
 

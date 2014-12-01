@@ -1,5 +1,10 @@
 Revision history for Tickit-Widget-Menu
 
+0.09    2014/12/01 01:35:24
+        [CHANGES]
+         * Document ->highlight_idx() method and ensure it works to pre-light
+           an item before the menu is actually displayed
+
 0.08    2014/04/12 14:37:24
         [CHANGES]
          * Avoid $rb->flush_to_window in unit tests; perform testing directly

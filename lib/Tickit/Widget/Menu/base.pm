@@ -1,7 +1,7 @@
 #  You may distribute under the terms of either the GNU General Public License
 #  or the Artistic License (the same terms as Perl itself)
 #
-#  (C) Paul Evans, 2012-2013 -- leonerd@leonerd.org.uk
+#  (C) Paul Evans, 2012-2014 -- leonerd@leonerd.org.uk
 
 package Tickit::Widget::Menu::base;
 
@@ -11,7 +11,7 @@ use feature qw( switch );
 
 use base qw( Tickit::Widget Tickit::Widget::Menu::itembase );
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 use Carp;
 
@@ -72,17 +72,19 @@ sub highlight_item
 
    return if defined $self->{active_idx} and $idx == $self->{active_idx};
 
+   my $have_window = defined $self->window;
+
    if( defined( my $old_idx = $self->{active_idx} ) ) {
       undef $self->{active_idx};
       my $old_item = $self->{items}[$old_idx];
       if( $old_item->isa( "Tickit::Widget::Menu" ) ) {
          $old_item->dismiss;
       }
-      $self->redraw_item( $old_idx );
+      $self->redraw_item( $old_idx ) if $have_window;
    }
 
    $self->{active_idx} = $idx;
-   $self->redraw_item( $idx );
+   $self->redraw_item( $idx ) if $have_window;
 }
 
 sub expand_item
